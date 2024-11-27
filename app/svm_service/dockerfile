@@ -1,0 +1,21 @@
+FROM python:3.10.5-slim-buster
+
+ENV PYTHONDONTWRITEBYTECODE=1
+
+# Set working directory
+WORKDIR /app
+
+ENV FLASK_APP=app.py
+ENV FLASK_RUN_HOST=0.0.0.0
+
+
+RUN --mount=type=cache,target=/root/.cache/pip \
+    --mount=type=bind,source=requirements.txt,target=requirements.txt \
+    python -m pip install -r requirements.txt
+
+
+    COPY . .
+# Expose the port used by the Flask app
+EXPOSE 8000
+
+CMD python svm_service.py

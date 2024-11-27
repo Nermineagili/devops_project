@@ -4,7 +4,7 @@ pipeline {
         stage('checkout github') {
     steps {
         // Explicitly checkout a repository from a URL
-        git url: 'https://github.com/Nermineagili/devops_project.git', branch: 'master'  // Replace 'main' with the correct branch name if needed
+        git url: 'https://github.com/Nermineagili/devops_project', branch: 'master'  // Replace 'main' with the correct branch name if needed
     }
 }
 

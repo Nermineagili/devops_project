@@ -9,10 +9,12 @@ pipeline {
 }
 
         stage('build images') {
-            steps {
-                bat 'docker build -t app/svm_service/svm .'
-            }
-        }
+    steps {
+        // Change to the directory where the Dockerfile is located and build the image
+        bat 'cd app/svm_service && docker build -t svm .'
+    }
+}
+
         stage('run image') {
             steps {
                 bat 'docker run -d -p 8000:8000 svm'

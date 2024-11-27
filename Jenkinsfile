@@ -10,7 +10,7 @@ pipeline {
 
         stage('build images') {
             steps {
-                bat 'docker build -t ./app/svm_service/svm .'
+                bat 'docker build -t ./app/svm_service/svm:latest .'
             }
         }
         stage('run image') {

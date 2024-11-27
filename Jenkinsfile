@@ -2,11 +2,12 @@ pipeline {
     agent any
     stages {
         stage('checkout github') {
-            steps {
-                // This will check out the code from the configured Git repository
-                checkout scm
-            }
-        }
+    steps {
+        // Explicitly checkout a repository from a URL
+        git url: 'https://github.com/Nermineagili/devops_project.git', branch: 'main'  // Replace 'main' with the correct branch name if needed
+    }
+}
+
         stage('build images') {
             steps {
                 bat 'docker build -t app/svm_service/svm .'

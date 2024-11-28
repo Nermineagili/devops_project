@@ -26,11 +26,12 @@ pipeline {
         }
 
         stage('Run Tests') {
-            steps {
-                // Run the tests inside the running Docker container
-                bat 'docker exec svm pytest app/svm_service/test_svm_service.py -v'  // Replace with the actual path to the tests
-            }
-        }
+    steps {
+        // Run the tests inside the running Docker container
+        bat 'docker exec svm pytest /app/test_svm_service.py -v'
+    }
+}
+
 
         stage('Deploy') {
             steps {

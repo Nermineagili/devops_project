@@ -17,37 +17,18 @@ pipeline {
 
         stage('Run Image') {
             steps {
-                // Run the container in detached mode with a name
+                // Stop and remove the existing container if it exists
+                bat 'docker rm -f svm || echo "No existing container to remove"'
+
+                // Run the container in detached mode with the name 'svm'
                 bat 'docker run -d -p 8002:8000 --name svm svm'
-            }
-        }
-
-        stage('Wait for Container') {
-            steps {
-                script {
-                    // Wait for the container to be ready
-                    sh '''
-                    echo "Waiting for the container to be ready..."
-                    while ! docker exec svm curl -s http://localhost:8000; do
-                        echo "Waiting for container to be ready..."
-                        sleep 5
-                    done
-                    '''
-                }
-            }
-        }
-
-        stage('Install Test Dependencies') {
-            steps {
-                // Install pytest on the container if it's not already installed
-                bat 'docker exec svm pip install pytest'
             }
         }
 
         stage('Run Tests') {
             steps {
                 // Run the tests inside the running Docker container
-                bat 'docker exec svm pytest /app/svm_service/test_svm_service.py -v'  // Full path to test inside the container
+                bat 'docker exec svm pytest app/svm_service/test_svm_service.py -v'  // Replace with the actual path to the tests
             }
         }
 

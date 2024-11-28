@@ -18,7 +18,7 @@ pipeline {
         stage('Run Image') {
             steps {
                 // Run the container in detached mode with a name
-                bat 'docker run -d -p 8001:8000 --name svm svm'
+                bat 'docker run -d -p 8002:8000 --name svm svm'
             }
         }
 

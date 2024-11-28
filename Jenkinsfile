@@ -18,7 +18,7 @@ pipeline {
         stage('Run Image') {
             steps {
                 // Run the container in detached mode, exposing the necessary ports
-                bat 'docker run -d -p 8000:8000 svm'
+                bat 'docker run -d -p 8001:8000 svm'
             }
         }
 

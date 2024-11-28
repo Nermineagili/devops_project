@@ -1,4 +1,5 @@
 Flask
 librosa
-scikit-learn 
+scikit-learn
 pickle-mixin
+pytest

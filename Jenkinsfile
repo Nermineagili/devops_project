@@ -22,12 +22,12 @@ pipeline {
             }
         }
 
-        stage('Install Test Dependencies') {
-            steps {
-                // Install the required dependencies (like pytest) inside the Docker container
-                bat 'docker exec svm pip install pytest'  // Assuming you need to install pytest
-            }
-        }
+        // stage('Install Test Dependencies') {
+        //     steps {
+        //         // Install the required dependencies (like pytest) inside the Docker container
+        //         bat 'docker exec svm pip install pytest'  // Assuming you need to install pytest
+        //     }
+        // }
 
         stage('Run Tests') {
             steps {

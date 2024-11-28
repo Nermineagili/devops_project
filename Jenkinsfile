@@ -17,22 +17,37 @@ pipeline {
 
         stage('Run Image') {
             steps {
-                // Run the container in detached mode, exposing the necessary ports
-                bat 'docker run -d -p 8001:8000 svm'
+                // Run the container in detached mode with a name
+                bat 'docker run -d -p 8001:8000 --name svm svm'
             }
         }
 
-        // stage('Install Test Dependencies') {
-        //     steps {
-        //         // Install the required dependencies (like pytest) inside the Docker container
-        //         bat 'docker exec svm pip install pytest'  // Assuming you need to install pytest
-        //     }
-        // }
+        stage('Wait for Container') {
+            steps {
+                script {
+                    // Wait for the container to be ready
+                    sh '''
+                    echo "Waiting for the container to be ready..."
+                    while ! docker exec svm curl -s http://localhost:8000; do
+                        echo "Waiting for container to be ready..."
+                        sleep 5
+                    done
+                    '''
+                }
+            }
+        }
+
+        stage('Install Test Dependencies') {
+            steps {
+                // Install pytest on the container if it's not already installed
+                bat 'docker exec svm pip install pytest'
+            }
+        }
 
         stage('Run Tests') {
             steps {
                 // Run the tests inside the running Docker container
-                bat 'docker exec svm pytest app/svm_service/test_svm_service.py -v'  // Replace with the actual path to the tests
+                bat 'docker exec svm pytest /app/svm_service/test_svm_service.py -v'  // Full path to test inside the container
             }
         }
 

@@ -1,5 +1,5 @@
-# Use a slim Python base image
-FROM python:3.10-slim as builder
+# Use a specific Python base image
+FROM python:3.10.5-slim-buster
 
 # Disable Python bytecode generation
 ENV PYTHONDONTWRITEBYTECODE=1
@@ -7,39 +7,20 @@ ENV PYTHONDONTWRITEBYTECODE=1
 # Set working directory inside the container
 WORKDIR /app
 
-# Install required system dependencies only for building
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    build-essential \
-    libopenblas-dev \
-    liblapack-dev \
-    python3-dev \
-    gfortran \
-    && apt-get clean && rm -rf /var/lib/apt/lists/*
+# Set environment variables for Flask
+ENV FLASK_APP=vgg_service.py
+ENV FLASK_RUN_HOST=0.0.0.0
 
-# Upgrade pip to the latest version to avoid compatibility issues
-RUN python -m pip install --upgrade pip
+# Install dependencies from requirements.txt
+RUN --mount=type=cache,target=/root/.cache/pip \
+    --mount=type=bind,source=requirements.txt,target=requirements.txt \
+    python -m pip install -r requirements.txt
 
-# Copy the requirements file to the container
-COPY requirements.txt .
-
-# Install Python dependencies without cache in builder stage
-RUN python -m pip install --no-cache-dir -r requirements.txt
-
-# Production image: minimal dependencies
-FROM python:3.10-slim
-
-# Set working directory inside the container
-WORKDIR /app
-
-# Copy dependencies from the builder stage
-COPY --from=builder /usr/local/lib/python3.10 /usr/local/lib/python3.10
-COPY --from=builder /usr/local/bin /usr/local/bin
-
-# Copy the application code to the container
+# Copy the application code into the container
 COPY . .
 
-# Expose the port used by the Flask app
+# Expose the port used by the Flask app (ensure this matches your app's port)
 EXPOSE 8000
 
-# Start the Flask app
+# Command to run the Flask app
 CMD ["python", "vgg_service.py"]

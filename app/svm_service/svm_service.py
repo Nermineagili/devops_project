@@ -1,3 +1,279 @@
+# from flask import Flask, request, jsonify
+# import joblib
+# import librosa
+# import numpy as np
+# import os
+# import sklearn
+
+# # Base path for loading and saving files
+# BASE_PATH = os.path.dirname(os.path.abspath(__file__))
+
+# # Load the pre-trained SVM model
+# MODEL_PATH = os.path.join(BASE_PATH, 'svm_model.pkl')
+# svm_model = joblib.load(MODEL_PATH)
+
+# # Flask application
+# app = Flask(__name__)
+
+# # Feature extraction functions
+# def normalize(x, axis=0):
+#     return sklearn.preprocessing.minmax_scale(x, axis=axis)
+
+# def zero_cross(x):
+#     n0 = 9000
+#     n1 = 9100
+#     zero_crossings = librosa.zero_crossings(x[n0:n1], pad=False)
+#     return sum(zero_crossings)
+
+# def spec_center(x, sr):
+#     spectral_centroids = normalize(librosa.feature.spectral_centroid(y=x, sr=sr)[0])
+#     frames = range(len(spectral_centroids))
+#     t = librosa.frames_to_time(frames)
+#     ma = max(spectral_centroids)
+#     return t[np.where(spectral_centroids == ma)[0][0]]
+
+# def extract_features(filename):
+#     x, sr = librosa.load(filename)
+#     features = [zero_cross(x), round(spec_center(x, sr), 2)]
+#     return np.array(features).reshape(1, -1)
+
+# @app.route('/classify', methods=['POST'])
+# def classify_genre():
+#     if 'file' not in request.files:
+#         return jsonify({"error": "No file provided"}), 400
+
+#     file = request.files['file']
+#     try:
+#         TEMP_AUDIO_PATH = os.path.join(BASE_PATH, 'temp_audio.wav')
+#         file.save(TEMP_AUDIO_PATH)
+#         features = extract_features(TEMP_AUDIO_PATH)
+#         prediction = svm_model.predict(features)
+
+#         genre_map = {'hiphop': "Hip-Hop", 'pop': "Pop", 'blues': "Blues", 'metal': "Metal"}
+#         genre = genre_map.get(prediction[0], "Unknown Genre")
+
+#         return jsonify({"genre": genre}), 200
+#     except Exception as e:
+#         return jsonify({"error": str(e)}), 500
+
+# if __name__ == '__main__':
+#     app.run(debug=True, port=8000)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# from flask import Flask, request, jsonify
+# import joblib
+# import librosa
+# import numpy as np
+# import os
+# import sklearn
+# import requests  # For communication with VGGish service
+
+# # Base path for loading and saving files
+# BASE_PATH = os.path.dirname(os.path.abspath(__file__))
+
+# # Load the pre-trained SVM model
+# MODEL_PATH = os.path.join(BASE_PATH, 'svm_model.pkl')  # Adjust if needed
+# svm_model = joblib.load(MODEL_PATH)
+
+# # Flask application
+# app = Flask(__name__)
+
+# # Feature extraction functions
+# def normalize(x, axis=0):
+#     return sklearn.preprocessing.minmax_scale(x, axis=axis)
+
+# def zero_cross(x):
+#     n0 = 9000
+#     n1 = 9100
+#     zero_crossings = librosa.zero_crossings(x[n0:n1], pad=False)
+#     return sum(zero_crossings)
+
+# def spec_center(x, sr):
+#     spectral_centroids = normalize(librosa.feature.spectral_centroid(y=x, sr=sr)[0])
+#     frames = range(len(spectral_centroids))
+#     t = librosa.frames_to_time(frames)
+#     ma = max(spectral_centroids)
+#     return t[np.where(spectral_centroids == ma)[0][0]]
+
+# # Function to extract features from an audio file
+# def extract_features(filename):
+#     x, sr = librosa.load(filename)
+#     features = [zero_cross(x), round(spec_center(x, sr), 2)]
+#     return np.array(features).reshape(1, -1)
+
+# @app.route('/classify', methods=['POST'])
+# def classify_genre():
+#     if 'file' not in request.files:
+#         return jsonify({"error": "No file provided"}), 400
+
+#     file = request.files['file']
+
+#     try:
+#         TEMP_AUDIO_PATH = os.path.join(BASE_PATH, 'temp_audio.wav')
+#         file.save(TEMP_AUDIO_PATH)
+
+#         # Optional: Send file to VGGish service
+#         with open(TEMP_AUDIO_PATH, 'rb') as audio_file:
+#             vggish_response = requests.post("http://vggish_service:5002/process", files={"file": audio_file})
+
+#         if vggish_response.status_code == 200:
+#             vggish_data = vggish_response.json()
+#             print("VGGish response:", vggish_data)
+
+#         features = extract_features(TEMP_AUDIO_PATH)
+#         prediction = svm_model.predict(features)
+
+#         genre_map = {'hiphop': "Hip-Hop", 'pop': "Pop", 'blues': "Blues", 'metal': "Metal"}  # Adjust as needed
+#         genre = genre_map.get(prediction[0], "Unknown Genre")
+
+#         return jsonify({"genre": genre, "vggish_data": vggish_data})
+
+#     except Exception as e:
+#         return jsonify({"error": str(e)}), 500
+
+# if __name__ == '__main__':
+#     app.run(debug=True, port=8000)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 from flask import Flask, request, jsonify, render_template_string
 import joblib
 import librosa

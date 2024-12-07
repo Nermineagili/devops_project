@@ -1,5 +1,7 @@
 Flask
+flask_cors
 librosa
 scikit-learn
 pickle-mixin
 pytest
+flask-cors

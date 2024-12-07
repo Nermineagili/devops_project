@@ -1,51 +1,100 @@
 from flask import Flask, request, jsonify
-import tensorflow as tf
-import base64
+from flask_cors import CORS
+from tensorflow.keras.models import load_model
 import numpy as np
 import librosa
-import io
+import librosa.display
+import tensorflow as tf
+from PIL import Image
+import os
+from os.path import abspath
 
 app = Flask(__name__)
+CORS(app)
 
-@app.route('/health')
-def health_check():
-    return "Service is healthy", 200
+# Use absolute path to load the pre-trained model (VGG19)
+model_path = abspath('model.keras')
+model = load_model(model_path)
 
-# Load VGGish model - TensorFlow models are usually saved in the SavedModel format for TensorFlow 2.x
-vggish_model = tf.saved_model.load('vgg_19_service/vggish_model.pb')
 
-@app.route('/predict_vgg', methods=['POST'])
-def predict_vgg():
-    try:
-        # Get the base64 audio file from the request
-        audio_data = request.json['wav_music']
+def wav_to_image(filePath):
+    # Load audio file
+    file, samplingRate = librosa.load(filePath)
+    print(file.shape, samplingRate)
 
-        # Decode the base64 audio
-        audio_bytes = base64.b64decode(audio_data)
-        
-        # Process audio
-        waveform, sr = librosa.load(io.BytesIO(audio_bytes), sr=16000)
+    # Trim silence from the beginning and end
+    example, _ = librosa.effects.trim(file)
+    hopLength = 512
 
-        # Ensure the waveform is of the correct shape (1, n_samples)
-        waveform = waveform.reshape(1, -1)
+    # Generate mel spectrogram
+    spectrogram = librosa.power_to_db(
+        librosa.feature.melspectrogram(y=example, sr=samplingRate, n_fft=2048, hop_length=hopLength, n_mels=128,
+                                       power=4.0),
+        ref=np.max
+    )
 
-        # Prepare input for VGGish model
-        # It's possible that VGGish expects some specific preprocessing steps. 
-        # Ensure that your preprocessing is correctly handled if needed.
-        inp = np.array([waveform]).astype('float32')
-        
-        # Make a prediction using the VGGish model
-        # Note: Adjust model prediction as per your actual model output
-        infer = vggish_model.signatures['serving_default']
-        class_scores = infer(tf.convert_to_tensor(inp))[0].numpy()
+    # Resize spectrogram to fit your desired image size
+    imgSize = (288, 432)
 
-        # Get the genre with the highest score
-        genre = np.argmax(class_scores)
+    # Use PIL to save the image directly
+    pil_img = Image.fromarray(spectrogram, mode='L')  # 'L' mode for grayscale
+    pil_img = pil_img.resize(imgSize)  # Resize to target size
+    temp_img_path = 'temp_spectrogram.png'
+    pil_img.save(temp_img_path)
+    # Read the saved image using TensorFlow
+    image = tf.image.decode_png(tf.io.read_file(temp_img_path), channels=3)
+    image = tf.image.resize(image, imgSize)
+    image = image / 255.0  # Normalize pixel values between 0 and 1
+    # Clean up the temporary image
+    os.remove(temp_img_path)
+    return image
 
-        return jsonify({'genre': genre})
-    
-    except Exception as e:
-        return jsonify({'error': str(e)}), 400
 
-if __name__ == "__main__":
-    app.run(host='0.0.0.0', port=5002)
+# Function to predict genre
+def predict_genre(wav_file):
+    mel_spectrogram = wav_to_image(wav_file)
+    mel_spectrogram = np.expand_dims(mel_spectrogram, axis=0)  # Expand dimensions for batch
+    prediction = model.predict(mel_spectrogram)
+    genres = ['blues', 'classical', 'country', 'disco', 'hiphop', 'jazz', 'metal', 'pop', 'reggae', 'rock']
+    predicted_genre = genres[np.argmax(prediction)]
+    return predicted_genre
+
+
+@app.route('/vgg19_service', methods=['POST'])
+def vgg19_service():
+    if 'wav_file' not in request.files:
+        abort(400, description="No file part in the request")
+    wav_file = request.files['wav_file']
+    if wav_file.filename == '':
+        abort(400, description="No selected file")
+    temp_file_path = './temp_audio.wav'
+    wav_file.save(temp_file_path)
+
+    # Predict genre
+    predicted_genre = predict_genre(temp_file_path)
+
+    # Clean up temporary audio file
+    os.remove("temp_audio.wav")
+
+    return jsonify({'genre': predicted_genre})
+
+
+@app.route('/')
+def upload_form():
+    return '''
+        <!doctype html>
+        <html>
+        <head><title>Upload WAV file With VGG 19</title></head>
+        <body>
+            <h2>Upload a WAV file to classify its genre with VGG19</h2>
+            <form action="/vgg19_service" method="post" enctype="multipart/form-data">
+                <input type="file" name="wav_file" accept=".wav" required>
+                <button type="submit">Upload and Classify</button>
+            </form>
+        </body>
+        </html>
+    '''
+
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=5002, debug=True)

@@ -1,10 +1,6 @@
 pipeline {
     agent any
-    environment {
-        FRONTEND_DIR = 'app/frontend'  // Path to your frontend directory
-        SVM_SERVICE_DIR = 'app/svm_service'  // Path to your svm service directory
-        TESTS_DIR = 'app/tests'  // Path to your tests directory
-    }
+    
     stages {
         stage('Checkout GitHub') {
             steps {
@@ -16,8 +12,8 @@ pipeline {
         stage('Build Docker Images') {
             steps {
                 // Build Docker images for both the frontend and svm services
-                bat 'cd ${SVM_SERVICE_DIR} && docker build -t svm .'
-                bat 'cd ${FRONTEND_DIR} && docker build -t frontend .'
+                bat 'cd app/svm_service && docker build -t svm .'
+                bat 'cd app/Frontend && docker build -t frontend .'
             }
         }
 
@@ -34,7 +30,7 @@ pipeline {
                 bat 'docker exec svm pytest /app/tests/test_svm_service.py -v'
 
                 // Run the Jest tests for the frontend, now targeting the correct tests directory
-                bat 'cd ${TESTS_DIR} && npm install && npx jest' // Ensure you're in the tests directory for the frontend
+                bat 'cd app/tests && npm install && npx jest' // Ensure you're in the tests directory for the frontend
             }
         }
 

@@ -2,7 +2,8 @@ import pytest
 import io
 from flask.testing import FlaskClient
 from werkzeug.datastructures import FileStorage
-from app.svm_service.svm_service import app
+from svm_service import app
+
 
 @pytest.fixture
 def client():

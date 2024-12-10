@@ -29,7 +29,7 @@ pipeline {
         stage('Run Tests') {
             steps {
                 // Run the backend service tests using pytest in the svm container
-                bat 'docker exec devops-svm_service-1 python -m pytest /app/tests/test_svm_service.py -v'
+                bat 'docker exec svm pytest /app/tests/test_svm_service.py -v'
 
 
 

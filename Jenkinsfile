@@ -22,7 +22,7 @@ pipeline {
                 // Use Docker Compose to bring up the services (frontend and svm)
                 bat 'docker-compose up -d' // Ensure your docker-compose.yml is properly configured
                 // Wait for containers to be ready
-                bat 'timeout /t 30'
+                
             }
         }
 

@@ -20,7 +20,7 @@ pipeline {
  stage('Start Services with Docker Compose') {
             steps {
                 // Use Docker Compose to bring up the services (frontend and svm)
-                bat 'docker-compose -f docker-compose.yml up -d' // Ensure your docker-compose.yml is properly configured
+                bat 'docker-compose up -d' // Ensure your docker-compose.yml is properly configured
                 // Wait for containers to be ready
                 bat 'timeout /t 30'
             }

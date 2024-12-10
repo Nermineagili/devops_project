@@ -29,7 +29,7 @@ pipeline {
         stage('Run Tests') {
             steps {
                 // Run the backend service tests using pytest in the svm container
-                bat 'docker exec svm pytest /app/tests/test_svm_service.py -v'
+                bat 'pytest /app/tests/test_svm_service.py -v'
 
                 // Run the Jest tests for the frontend, now targeting the correct tests directory
                 bat 'cd app/tests && npm install && npx jest' // Ensure you're in the tests directory for the frontend

@@ -1,17 +1,18 @@
 version: '3.8'
+
 services:
   svm_service:
     build:
       context: ./app/svm_service  # Ensure this points to the correct path
-    # volumes:
-    #   - ./app/svm_service:./app/
     ports:
       - "8000:8000"  # Updated to avoid conflict with port 8000
+    volumes:
+      - ./app/svm_service:/app  # Optionally mount the volume to ensure file access
 
   frontend:
     build:
       context: ./app/Frontend  # Ensure this points to the correct path
-    # volumes:
-    #   - "./app/Frontend/:.app/"
     ports:
       - "8082:80"
+    volumes:
+      - ./app/Frontend:/app  # Optionally mount the volume to ensure file access

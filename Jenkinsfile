@@ -38,7 +38,7 @@ pipeline {
 
 
                 // Run the Jest tests for the frontend, now targeting the correct tests directory
-                //bat 'cd app/tests && npm install && npx jest' // Ensure you're in the tests directory for the frontend
+                bat ' npm install && npx jest' // Ensure you're in the tests directory for the frontend
             }
         }
 
